@@ -39,21 +39,69 @@ id {letter}+({letter}|{digit})*
 
  /*	Rules section */
 
+ /* Delimiters(Parser) */
+
+"," {printf("%s \t COMMA \n",yytext); }
+";" {printf("%s \t SEMI \n",yytext); }
+"(" {printf("%s \t L_ROUND \n",yytext); }
+")" {printf("%s \t R_ROUND \n",yytext); }
+"[" {printf("%s \t L_SQUARE \n",yytext); }
+"]" {printf("%s \t R_SQUARE \n",yytext); }
+"{" {printf("%s \t L_CURLY \n",yytext); }
+"}" {printf("%s \t R_CURLY \n",yytext); }
+
+ /*Operators(Parser)*/
+ 
+"+" {printf("%s \t ADD \n",yytext);}
+"-" {printf("%s \t MINUS \n",yytext);}
+"*" {printf("%s \t MULTI \n",yytext);}
+"/" {printf("%s \t DIVIDE \n",yytext);}
+"^" {printf("%s \t EXPO \n",yytext);}
+"%" {printf("%s \t REMAIN \n",yytext);}
+"<" {printf("%s \t LESS \n",yytext);}
+"<=" {printf("%s \t LESS_EQUAL \n",yytext);}
+">=" {printf("%s \t GREATER_EREQUAL \n",yytext);}
+">" {printf("%s \t GREATER \n",yytext);}
+"==" {printf("%s \t EQUAL \n",yytext);}
+"!=" {printf("%s \t NOT_EQUAL \n",yytext);}
+"="	{printf("%s \t ASSIGN \n",yytext);}
+
+ /* Keywords(Parser) */ 
+
+int		{printf("%s \t INT \n",yytext); }
+double  {printf("%s \t DOUBLE \n",yytext); }
+print	{printf("%s \t PRINT \n",yytext); }
+if		{printf("%s \t IF \n",yytext); }
+else	{printf("%s \t ELSE \n",yytext); }
+while	{printf("%s \t WHILE \n",yytext); }
+char	{printf("%s \t CHAR \n",yytext); }
+return	{printf("%s \t RETURN \n",yytext); }
+break	{printf("%s \t BREAK \n",yytext); }
+read	{printf("%s \t READ \n",yytext); }
+
+
+
+ /*Identifiers*/
+ 
+{id} {printf("%s \t ID \n",yytext); }
+
+ /*Integer Constants*/
+ 
+{digit}+	{printf("%s \t NUM \n",yytext); }
+ 
+ /*String Constants*/
+ 
+["][0-9a-zA-z]["] {printf("%s \t QUO_ID_QOU \n",yytext); }
+
  /* Comment Section */
-[/][/].* 	{printf("comment: %s ",yytext);}
+ 
+[/][/].* 	{printf("COMMENT: %s ",yytext);}
 
- /* Keyword */ 
+ /*Token will be discarded*/
 
-
-";" 				{printf("%s \t SEM \n",yytext); }
-"print"				{	/* C action code */	;}
-"=" 				{printf("%s \t ASSIGN \n",yytext);}
-"+" 				{printf("%s \t ADD \n",yytext);}
-{id} 				{printf("%s \t ID \n",yytext); }
-{digit}+			{printf("%s \t NUM \n",yytext);}
-[\n]				{;}
-
-
+[ \t\0]	{;}
+[\n]	{;}
+.		{;}
 
 %%
 
