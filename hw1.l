@@ -19,9 +19,19 @@
 
 	TAs create the basic function which you have to fill.
 	We encourage you define new function to make the program work better.
-	However, the four basic functions must be finished.
+	However, the four basic functions mu
+	st be finished.
 */
+	typedef struct Symbol_Table {
+		char* id;
+		char* type;
+		struct Symbol_Table *next;
+	} ST;	
+
+	ST *head,*mov_head;
+	
 	void create_symbol();
+	void insert_type();
 	void insert_symbol();
 	int lookup_symbol();
 	void dump_symbol();
@@ -34,6 +44,7 @@
 letter [a-zA-Z]
 digit [0-9]
 id {letter}+({letter}|{digit})*
+comment "(*"([^*]|\n|"*"+[^)])*"*"+")"
 
 %%
 
@@ -68,30 +79,29 @@ id {letter}+({letter}|{digit})*
 
  /* Keywords(Parser) */ 
 
-int		{printf("%s \t INT \n",yytext); }
-double  {printf("%s \t DOUBLE \n",yytext); }
+int		{printf("%s \t INT \n",yytext); insert_type("INT");}
+double  {printf("%s \t DOUBLE \n",yytext); insert_type("DOUBLE");}
+char	{printf("%s \t CHAR \n",yytext); insert_type("CHAR");}
 print	{printf("%s \t PRINT \n",yytext); }
 if		{printf("%s \t IF \n",yytext); }
 else	{printf("%s \t ELSE \n",yytext); }
 while	{printf("%s \t WHILE \n",yytext); }
-char	{printf("%s \t CHAR \n",yytext); }
 return	{printf("%s \t RETURN \n",yytext); }
 break	{printf("%s \t BREAK \n",yytext); }
 read	{printf("%s \t READ \n",yytext); }
 
-
-
  /*Identifiers*/
  
-{id} {printf("%s \t ID \n",yytext); }
+{id} {printf("%s \t ID \n",yytext); insert_symbol(yytext);}
 
  /*Integer Constants*/
  
-{digit}+	{printf("%s \t NUM \n",yytext); }
+{digit}+	{printf("%s \t INT NUM \n",yytext); }
+[-+]?{digit}*\.?{digit}+	{printf("%s \t FLOAT NUM \n",yytext); }
  
  /*String Constants*/
  
-["][0-9a-zA-z]["] {printf("%s \t QUO_ID_QOU \n",yytext); }
+["][0-9a-zA-z]["] {printf("%s \t ID \n",yytext); }
 
  /* Comment Section */
  
@@ -112,8 +122,10 @@ read	{printf("%s \t READ \n",yytext); }
 int main(int argc,char *argv[]){
 
 	yyin = fopen(argv[1],"r");
+	head = (ST*)malloc(sizeof(ST));
+	mov_head = head;
 	yylex();
-	dump_symbol();
+	dump_symbol(); //Print the symbol table
 
 	return 0;
 }
@@ -123,11 +135,29 @@ int yywrap(void) {
 }
 
 void create_symbol(){
+	printf("Create a symbol table");
+}
 
+void insert_type(char* s){
+	//printf("The type is: %s\n", s);
+	mov_head->type = s;
+	//printf("The type is: %s\n", mov_head->type);
 }
 
 void insert_symbol(char* s){
-
+	//printf("Insert a symbol: %s\n", s);
+	// mov_head->id = s;
+	char *cstr = malloc(sizeof(char)*strlen(s));
+	strcpy(cstr,s);
+	mov_head->id = cstr;
+	//printf("Insert a symbol: %s\n", mov_head->id);
+	ST *tmp = (ST*)malloc(sizeof(ST));
+	mov_head->next = tmp;
+	mov_head = tmp;
+	mov_head->next = NULL;
+	tmp=NULL;
+	
+	free(tmp);
 }
 
 int lookup_symbol(char* sym){
@@ -135,5 +165,11 @@ int lookup_symbol(char* sym){
 }
 
 void dump_symbol(){
-	
+	printf("The symbol table dump\n");
+	int index = 1;
+	mov_head = head;
+	while(mov_head->next != NULL){
+		printf("%d , %s , %s\n", index++, mov_head->id, mov_head->type);
+		mov_head = mov_head->next;	
+	}		
 }
