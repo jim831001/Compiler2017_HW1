@@ -28,7 +28,7 @@
 		struct Symbol_Table *next;
 	} ST;	
 
-	ST *head,*mov_head;
+	ST *head,*mov_head,*camp_head;
 	
 	void create_symbol();
 	void insert_type();
@@ -36,7 +36,7 @@
 	int lookup_symbol();
 	void dump_symbol();
 	int linenum = 0;
-
+	int iscreated = 0;
 %}
 
 /*	define regular expression label */
@@ -122,8 +122,7 @@ read	{printf("%s \t READ \n",yytext); }
 int main(int argc,char *argv[]){
 
 	yyin = fopen(argv[1],"r");
-	head = (ST*)malloc(sizeof(ST));
-	mov_head = head;
+
 	yylex();
 	dump_symbol(); //Print the symbol table
 
@@ -135,38 +134,60 @@ int yywrap(void) {
 }
 
 void create_symbol(){
-	printf("Create a symbol table");
+	head = (ST*)malloc(sizeof(ST));
+	mov_head = head;
+	printf("Create a symbol table\n");
 }
 
 void insert_type(char* s){
 	//printf("The type is: %s\n", s);
-	mov_head->type = s;
+	char *tstr = malloc(sizeof(char)*strlen(s));
+	strcpy(tstr,s);
+	if (iscreated == 0){
+		create_symbol();
+		iscreated = 1;
+	}	
+	mov_head->type = tstr;
 	//printf("The type is: %s\n", mov_head->type);
+	
 }
 
 void insert_symbol(char* s){
-	//printf("Insert a symbol: %s\n", s);
-	// mov_head->id = s;
 	char *cstr = malloc(sizeof(char)*strlen(s));
 	strcpy(cstr,s);
-	mov_head->id = cstr;
-	//printf("Insert a symbol: %s\n", mov_head->id);
-	ST *tmp = (ST*)malloc(sizeof(ST));
-	mov_head->next = tmp;
-	mov_head = tmp;
-	mov_head->next = NULL;
-	tmp=NULL;
-	
-	free(tmp);
+	int result = 0;
+	int isrepeat = 0;
+	camp_head = head;
+	while(camp_head->next != NULL){
+		result = strcmp(cstr, camp_head->id);
+		if (result == 0){ //找到相同的Symbol
+			isrepeat = 1;	
+		}	
+		camp_head = camp_head->next;
+	}	
+	if (isrepeat == 1){	
+		//printf("Repeat!\n");
+	}else if (isrepeat == 0){
+		mov_head->id = cstr;
+		printf("Insert a symbol: %s\n", mov_head->id);
+		ST *tmp = (ST*)malloc(sizeof(ST));
+		mov_head->next = tmp;
+		mov_head = tmp;
+		mov_head->next = NULL;
+		tmp=NULL;	
+		free(tmp);
+	}
 }
+	
+
 
 int lookup_symbol(char* sym){
 
 }
 
 void dump_symbol(){
-	printf("The symbol table dump\n");
 	int index = 1;
+	printf("The symbol table dump\n");
 	mov_head = head;
 	while(mov_head->next != NULL){
 		printf("%d , %s , %s\n", index++, mov_head->id, mov_head->type);
