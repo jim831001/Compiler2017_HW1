@@ -28,7 +28,7 @@
 		struct Symbol_Table *next;
 	} ST;	
 
-	ST *head,*mov_head,*camp_head;
+	ST *head,*mov_head,*camp_head,*po_head;
 	
 	void create_symbol();
 	void insert_type();
@@ -79,16 +79,16 @@ comment "(*"([^*]|\n|"*"+[^)])*"*"+")"
 
  /* Keywords(Parser) */ 
 
-int		{printf("%s \t INT \n",yytext); insert_type("INT");}
-double  {printf("%s \t DOUBLE \n",yytext); insert_type("DOUBLE");}
-char	{printf("%s \t CHAR \n",yytext); insert_type("CHAR");}
-print	{printf("%s \t PRINT \n",yytext); }
-if		{printf("%s \t IF \n",yytext); }
-else	{printf("%s \t ELSE \n",yytext); }
-while	{printf("%s \t WHILE \n",yytext); }
-return	{printf("%s \t RETURN \n",yytext); }
-break	{printf("%s \t BREAK \n",yytext); }
-read	{printf("%s \t READ \n",yytext); }
+(?i:int)	{printf("%s \t INT \n",yytext); insert_type("INT");}
+(?i:double) {printf("%s \t DOUBLE \n",yytext); insert_type("DOUBLE");}
+(?i:char)	{printf("%s \t CHAR \n",yytext); insert_type("CHAR");}
+(?i:print)	{printf("%s \t PRINT \n",yytext); }
+(?i:if)		{printf("%s \t IF \n",yytext); }
+(?i:else)	{printf("%s \t ELSE \n",yytext); }
+(?i:while)	{printf("%s \t WHILE \n",yytext); }
+(?i:return)	{printf("%s \t RETURN \n",yytext); }
+(?i:break)	{printf("%s \t BREAK \n",yytext); }
+(?i:read)	{printf("%s \t READ \n",yytext); }
 
  /*Identifiers*/
  
@@ -101,11 +101,13 @@ read	{printf("%s \t READ \n",yytext); }
  
  /*String Constants*/
  
-["][0-9a-zA-z]["] {printf("%s \t ID \n",yytext); }
+["][^"]*["] {printf("%s \t STRING \n",yytext); }
 
  /* Comment Section */
  
-[/][/].* 	{printf("COMMENT: %s ",yytext);}
+[/]{2}[^\n\r]*  {printf("%s COMMENTS\n", yytext);}
+
+[/][*]([^*]*|([*]+[^*/]))*[*]+[/]  {printf("%s COMMENTS\n", yytext);}
 
  /*Token will be discarded*/
 
@@ -182,7 +184,21 @@ void insert_symbol(char* s){
 
 
 int lookup_symbol(char* sym){
-
+	char *lstr = malloc(sizeof(char)*strlen(sym));
+	strcpy(lstr,sym);
+	po_head = head;
+	int po = 1;
+	int r = 100;
+	while(po_head->next != NULL){
+		r = strcmp(lstr, camp_head->id);
+		if (r==0){ //match
+			return po;
+		}else{
+			po++;
+			po_head->next = po_head;
+		}
+	}
+	return 0;
 }
 
 void dump_symbol(){
